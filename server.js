@@ -9,7 +9,6 @@ const knex = require('knex')({
     }
 });
 
-
 const PORT = process.env.PORT || 8080;
 const app = express();
 
@@ -19,7 +18,7 @@ app.use(bodyParser.json());
 
 //--------------------------------------------------POST
 app.post('/recipes', (req, res) => {
-
+  
   knex.insert({
     name: req.body.name,
     description: req.body.description
@@ -44,7 +43,7 @@ app.post('/recipes', (req, res) => {
 
 //-------------------------------------------------GET
 app.get('/recipes', (req, res) => {
-  
+
   knex('recipes')
   .join('steps', 'recipes.id', 'steps.recipe_id')
   .select('recipes.name', 'steps.step')
