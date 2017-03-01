@@ -43,24 +43,70 @@ app.post('/recipes', (req, res) => {
 
 
 //-------------------------------------------------GET
-// app.get('/recipes', (req, res) => {
-//   knex('recipes')
-//   .select('*')
-//   //.innerJoin('steps', 'recipe.id', 'steps.recipe_id')
-//   .then(recipes => {
-//     console.log("hello");
-//     res.status(200).send(recipes);
-//   }).catch(err => res.status(500).send(err));
-// });
-
 app.get('/recipes', (req, res) => {
   knex('recipes')
   .join('steps', 'recipes.id', 'steps.recipe_id')
   .select('recipes.name', 'steps.step')
-  .then(recipes => {
-    res.status(200).send(recipes);
+  .then(recipes => {   
+    const obj = {};
+
+    recipes.forEach(({name, step}) => {
+      if(!obj[name]) obj[name] = [];
+      obj[name].push(step);
+    });
+
+    const finalResult = Object.keys(obj).map(key => {
+      return {name: key, steps: obj[key]};
+    });
+
+    res.status(200).send(finalResult);
   });
 });
+
+
+
+    // recipes.forEach(({name, step}) => {
+    //   if(currentRecipe.name === ""){
+    //     currentRecipe.name = name;
+    //   }
+    //   console.log(currentRecipe.name);
+    //   if(currentRecipe.name != name){
+    //     recipesResult.push(currentRecipe);
+    //     currentRecipe.name = name;
+    //     currentRecipe.steps = [];
+    //   }
+    //   currentRecipe.steps.push(step);
+    //   console.log(recipesResult);
+    // });
+
+//[ { " ",[" "," "," "] } , {} ,{} ]
+
+// [
+//   {
+//     "name": "Super Sushi",
+//     "step": "Get fish and stuff"
+//   },
+//   {
+//     "name": "Super Sushi",
+//     "step": "Roll it all up"
+//   },
+//   {
+//     "name": "Super Sushi",
+//     "step": "Eat sushi"
+//   },
+//   {
+//     "name": "Super Sushi 3",
+//     "step": "Get super fish and stuff"
+//   },
+//   {
+//     "name": "Super Sushi 3",
+//     "step": "Roll it all up with fervor"
+//   },
+//   {
+//     "name": "Super Sushi 3",
+//     "step": "Eat sushi all day"
+//   }
+// ]
 
 
 //-------------------------------------------------PUT
@@ -70,49 +116,3 @@ app.get('/recipes', (req, res) => {
 //--------------------------------------------***SERVER CONTROLLERS***--------------------------------------------//
 
 app.listen(PORT);
-
-// knex.select('recipes.name', 'tags.tag')
-//     .from('recipes')
-//     .join('tags', 'tags.recipe_id', 'recipe.id')
-//     .then(function(rows) {
-//         console.log(rows)
-//     });
-
-// let server;
-// function runServer() {
-//   return new Promise((resolve, reject) => {
-//     mongoose.connect(DATABASE_URL, err => {
-//       if (err) {
-//         return reject(err);
-//       }
-//       server = app.listen(PORT, () => {
-//         console.log(`Your app is listening on port ${PORT}`);
-//         resolve();
-//       })
-//       .on('error', err => {
-//         mongoose.disconnect();
-//         reject(err);
-//       });
-//     });
-//   });
-// }
-
-// function closeServer() {
-//   return mongoose.disconnect().then(() => {
-//      return new Promise((resolve, reject) => {
-//        console.log('Closing server');
-//        server.close(err => {
-//            if (err) {
-//                return reject(err);
-//            }
-//            resolve();
-//        });
-//      });
-//   });
-// }
-
-// if (require.main === module) {
-//   runServer().catch(err => console.error(err));
-// }
-
-// module.exports = {app, runServer, closeServer};
