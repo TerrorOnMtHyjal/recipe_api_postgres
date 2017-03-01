@@ -19,7 +19,6 @@ app.use(bodyParser.json());
 
 //--------------------------------------------------POST
 app.post('/recipes', (req, res) => {
-  const recipeToInsert = req.body;
 
   knex.insert({
     name: req.body.name,
@@ -28,14 +27,13 @@ app.post('/recipes', (req, res) => {
   .returning('id')
   .into('recipes')
   .then(id => {
-    const stepsToInsert = recipeToInsert.steps.map((step, index) => {
+    return knex.insert(req.body.steps.map((step, index) => {
       return {
         step: step,
         step_number: index += 1,
         recipe_id : id[0]
-      };
-    });
-    return knex.insert(stepsToInsert).into('steps');
+      };  
+    })).into('steps');
   })
   .then(recipe => {
     res.status(200).send("Working!");
@@ -45,13 +43,23 @@ app.post('/recipes', (req, res) => {
 
 
 //-------------------------------------------------GET
-
+// app.get('/recipes', (req, res) => {
+//   knex('recipes')
+//   .select('*')
+//   //.innerJoin('steps', 'recipe.id', 'steps.recipe_id')
+//   .then(recipes => {
+//     console.log("hello");
+//     res.status(200).send(recipes);
+//   }).catch(err => res.status(500).send(err));
+// });
 
 app.get('/recipes', (req, res) => {
-  knex('recipes').select('*')
+  knex('recipes')
+  .join('steps', 'recipes.id', 'steps.recipe_id')
+  .select('recipes.name', 'steps.step')
   .then(recipes => {
     res.status(200).send(recipes);
-  }).catch(err => res.status(500).send(err));
+  });
 });
 
 
