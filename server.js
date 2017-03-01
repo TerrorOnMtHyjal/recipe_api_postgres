@@ -44,6 +44,7 @@ app.post('/recipes', (req, res) => {
 
 //-------------------------------------------------GET
 app.get('/recipes', (req, res) => {
+  
   knex('recipes')
   .join('steps', 'recipes.id', 'steps.recipe_id')
   .select('recipes.name', 'steps.step')
@@ -60,54 +61,9 @@ app.get('/recipes', (req, res) => {
     });
 
     res.status(200).send(finalResult);
-  });
+  })
+  .catch(err => res.status(500).send(err));
 });
-
-
-
-    // recipes.forEach(({name, step}) => {
-    //   if(currentRecipe.name === ""){
-    //     currentRecipe.name = name;
-    //   }
-    //   console.log(currentRecipe.name);
-    //   if(currentRecipe.name != name){
-    //     recipesResult.push(currentRecipe);
-    //     currentRecipe.name = name;
-    //     currentRecipe.steps = [];
-    //   }
-    //   currentRecipe.steps.push(step);
-    //   console.log(recipesResult);
-    // });
-
-//[ { " ",[" "," "," "] } , {} ,{} ]
-
-// [
-//   {
-//     "name": "Super Sushi",
-//     "step": "Get fish and stuff"
-//   },
-//   {
-//     "name": "Super Sushi",
-//     "step": "Roll it all up"
-//   },
-//   {
-//     "name": "Super Sushi",
-//     "step": "Eat sushi"
-//   },
-//   {
-//     "name": "Super Sushi 3",
-//     "step": "Get super fish and stuff"
-//   },
-//   {
-//     "name": "Super Sushi 3",
-//     "step": "Roll it all up with fervor"
-//   },
-//   {
-//     "name": "Super Sushi 3",
-//     "step": "Eat sushi all day"
-//   }
-// ]
-
 
 //-------------------------------------------------PUT
 
