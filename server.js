@@ -9,7 +9,7 @@ const knex = require('knex')({
     }
 });
 
-//const DATABASE_URL = process.env.DATABASE_URL || global.DATABASE_URL || 'mongodb://localhost/hn-api';
+
 const PORT = process.env.PORT || 8080;
 const app = express();
 
@@ -18,32 +18,57 @@ app.use(bodyParser.json());
 //----------------------------------------------***END POINTS***--------------------------------------------------//
 
 //--------------------------------------------------POST
-app.post('/stories', (req, res) => {
- 
+app.post('/recipes', (req, res) => {
+  const recipeToInsert = req.body;
+
+  knex.insert({
+    name: req.body.name,
+    description: req.body.description
+  })
+  .returning('id')
+  .into('recipes')
+  .then(id => {
+    const stepsToInsert = recipeToInsert.steps.map((step, index) => {
+      return {
+        step: step,
+        step_number: index += 1,
+        recipe_id : id[0]
+      };
+    });
+    return knex.insert(stepsToInsert).into('steps');
+  })
+  .then(recipe => {
+    res.status(200).send("Working!");
+  })
+  .catch(err => res.status(500).send(err));
 });
+
 
 //-------------------------------------------------GET
 
-app.get('/stories', (req, res)=>{
-  Story.find().sort({votes: -1}).limit(20).exec()
-  .then(stories => {
-    res.status(200).json({
-      Stories: stories.map(currentStory => currentStory.apiRepr())
-    });
-  })
-  .catch(err => {
-    console.error(err);
-    res.status(500).json({message: 'Something went wrong when GETTING all stories!'});
-  });
+
+app.get('/recipes', (req, res) => {
+  knex('recipes').select('*')
+  .then(recipes => {
+    res.status(200).send(recipes);
+  }).catch(err => res.status(500).send(err));
 });
+
 
 //-------------------------------------------------PUT
 
-//----------------------------------------------------DELETE
+//-------------------------------------------------DELETE
 
 //--------------------------------------------***SERVER CONTROLLERS***--------------------------------------------//
 
-app.listen(8080);
+app.listen(PORT);
+
+// knex.select('recipes.name', 'tags.tag')
+//     .from('recipes')
+//     .join('tags', 'tags.recipe_id', 'recipe.id')
+//     .then(function(rows) {
+//         console.log(rows)
+//     });
 
 // let server;
 // function runServer() {
